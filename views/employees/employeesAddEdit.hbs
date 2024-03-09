@@ -1,0 +1,32 @@
+<!-- obtain values from employees controller-->
+<h3>{{viewTitle}}</h3>
+<form action="/employees" method="post">
+    <input type="hidden" name="_id" value="{{employee._id}}">
+
+    <div class="form-group">
+        <label for="name">Employee Name</label>
+        <input type="text"  maxlength="100"  class="form-control" id="name" name="name" placeholder="Enter employee name" value="{{employees.employeesName}}" required>
+
+        <div class="text-danger">
+            {{employees.employeesNameError}}
+        </div>
+    </div>
+    <div class="form-group">
+        <label>Employee ID </label>
+        <input type="number" min="10000" max="99999"  class="form-control" id="employeesId" name="employeesId" placeholder="Enter ID" value="{{employees.employeesId}}" required> 
+    </div>
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label>PROFESSION</label>
+            <input type="text" class="form-control" id="employeesProfession" name="employeesprofession" placeholder="Enter profession" value="{{employees.employeesprofession}}" required>
+        </div>
+        <div class="form-group col-md-6">
+            <label>SALARY</label>
+            <input type="number" min="100" max="99999"  class="form-control" id="employeesSalary" name="employeesSalary" placeholder="Enter salary" value="{{employees.employeesSalary}}" required>
+        </div>
+    </div>
+    <div class="form-group">
+        <button type="submit" class="btn btn-info"><i class="fa fa-database"></i>Submit</button>
+        <a class="btn btn-secondary" href="/employees/list"><i class="fa fa-list-alt"></i>View Informaton</a>
+    </div>    
+</form>
