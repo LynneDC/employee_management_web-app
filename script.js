@@ -7,31 +7,29 @@ require('./models/mongodb');
 
 // import packages
 const express = require('express');
-var app = express();
-
+const app = express();
 const bodyParser = require('body-parser');
+const exphbs = require('express-handlebars');
 const path = require('path');
-const exphb = require('express-handlebars')
 const mongoose = require('./models/mongodb');
-
-const employeesController = require('./controllers/employeeController');
+const employeesController = require('./controller/employeesController');
 
 app.use(bodyParser.urlencoded({ extended: true }));
-
-// cretae a welsome msg 
 app.get('/', (req, res) => {
     res.send(`
 <h2 style="font-family: Malgun Gothic; color: midnightblue ">Welcome to the Employee Management Web App!!</h2>
-
-
 Click Here to go to <b> <a href="/employees">Employee Management Page</a> </b>`);
 });
 app.use(bodyParser.json());
 
-// set the view engine  configure middleware
-app.set('views', path.join(__dirname, '/views/'));
-app.engine('hbs', exphb({extname: 'hbs', defaultLayout: 'mainLayout', layoutDir: __dirname + 'views/layouts/' }));
+app.set('views', path.join(__dirname, 'views'));
+app.engine('hbs', exphbs.engine({
+    extname: 'hbs', 
+    defaultLayout: 'mainLayout', 
+    layoutsDir: path.join(__dirname, 'views/layouts/') 
+}));
 app.set('view engine', 'hbs');
+
 
 /**
  * Starts the server and listens on the specified port.

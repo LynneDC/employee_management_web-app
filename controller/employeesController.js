@@ -1,3 +1,5 @@
+
+
 /**
  * Express router for handling employee-related routes.
  * @module employeesController
@@ -5,9 +7,10 @@
 
 const express = require('express');
 const mongoose = require('mongoose');
+ // Import the Employee model
+ const Employee = require('../models/model');
 
 var router = express.Router();
-const Employees = mongoose.model('Employees');
 
 /**
  * Route for rendering the form to insert a new employee.
@@ -44,28 +47,26 @@ router.post('/', (req, res) => {
  * @param {Object} res - Express response object.
  */
 function insertIntoMongoDB(req, res) {
-    var employee = new Employees();
+    var employee = new Employee();
     employee.employeesName = req.body.employeesName;
     employee.employeesId = req.body.employeesId;
     employee.employeesProfession = req.body.employeesProfession;
     employee.employeesSalary = req.body.employeesSalary;
-    employee.save((err, doc) => {
-        if (!err)
+    employee.save()
+        .then(doc => {
             res.redirect('employees/list');
-        else {
-            if (err.name == 'ValidationError') 
-            { //for duplicate validation error, check error object name
+        })
+        .catch(err => {
+            if (err.name == 'ValidationError') { 
                 handleValidationError(err, req.body);
                 res.render("employees/employeesAddEdit", {
                     viewTitle: "Update Employee",
                     employee: req.body
                 });
+            } else {
+                console.log('Error during record insertion : ' + err);
             }
-            
-        else
-            console.log('Error during record insertion : ' + err);
-        }
-    });
+        });
 }
 
 /**
@@ -76,7 +77,7 @@ function insertIntoMongoDB(req, res) {
  * @param {Object} res - Express response object.
  */
 router.get('/list', (req, res) => {
-    Employees.find((err, docs) => {
+    Employee.find((err, docs) => {
     if(!err){
         res.render("employees/employeesList", {
             list: docs                       
@@ -122,9 +123,9 @@ function handleValidationError(err, body) {
  * @param {Object} res - Express response object.
  */
 router.get('/:id', (req, res) => {
-    Employees.findByIdAndRemove(req.params.id, (err, doc) => {
+    Employee.findByIdAndRemove(req.params.id, (err, doc) => {
         if (!err) {
-            res.redirect('/employees/list');            
+            res.redirect('/employees/list'); // corrected redirection path
         }
         else {
             console.log('Error in employee delete :' + err);
