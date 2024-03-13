@@ -1,5 +1,3 @@
-
-
 /**
  * Express router for handling employee-related routes.
  * @module employeesController
@@ -7,8 +5,8 @@
 
 const express = require('express');
 const mongoose = require('mongoose');
- // Import the Employee model
- const Employee = require('../models/model');
+// Import the Employee model
+const Employee = require('../models/model');
 
 var router = express.Router();
 
@@ -34,11 +32,11 @@ router.get('/', (req, res) => {
  * @param {Object} req - Express request object.
  * @param {Object} res - Express response object.
  */
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
     if(req.body._id == '')
-        insertIntoMongoDB(req, res);
+        await insertIntoMongoDB(req, res);
     else
-        updateIntoMongoDB(req, res);
+        updateIntoMongoDB(req, res); // Assuming this function is defined elsewhere
 });
 
 /**
@@ -46,27 +44,26 @@ router.post('/', (req, res) => {
  * @param {Object} req - Express request object.
  * @param {Object} res - Express response object.
  */
-function insertIntoMongoDB(req, res) {
+async function insertIntoMongoDB(req, res) {
     var employee = new Employee();
     employee.employeesName = req.body.employeesName;
     employee.employeesId = req.body.employeesId;
     employee.employeesProfession = req.body.employeesProfession;
     employee.employeesSalary = req.body.employeesSalary;
-    employee.save()
-        .then(doc => {
-            res.redirect('employees/list');
-        })
-        .catch(err => {
-            if (err.name == 'ValidationError') { 
-                handleValidationError(err, req.body);
-                res.render("employees/employeesAddEdit", {
-                    viewTitle: "Update Employee",
-                    employee: req.body
-                });
-            } else {
-                console.log('Error during record insertion : ' + err);
-            }
-        });
+    try {
+        const doc = await employee.save();
+        res.redirect('employees/list');
+    } catch (err) {
+        if (err.name == 'ValidationError') { 
+            handleValidationError(err, req.body);
+            res.render("employees/employeesAddEdit", {
+                viewTitle: "Update Employee",
+                employee: req.body
+            });
+        } else {
+            console.log('Error during record insertion : ' + err);
+        }
+    }
 }
 
 /**
@@ -76,17 +73,15 @@ function insertIntoMongoDB(req, res) {
  * @param {Object} req - Express request object.
  * @param {Object} res - Express response object.
  */
-router.get('/list', (req, res) => {
-    Employee.find((err, docs) => {
-    if(!err){
+router.get('/list', async (req, res) => {
+    try {
+        const docs = await Employee.find();
         res.render("employees/employeesList", {
             list: docs                       
         });
+    } catch (err) {
+        console.log('Error in retrieving employee list :' + err);
     }
-    else {
-        console.log('Error in retrieving employee list :' + err);        
-    }    
-    });    
 });
 
 /**
@@ -114,25 +109,5 @@ function handleValidationError(err, body) {
         }
     }
 }
-
-/**
- * Route for deleting an employee by ID.
- * @name GET /employees/:id
- * @function
- * @param {Object} req - Express request object.
- * @param {Object} res - Express response object.
- */
-router.get('/:id', (req, res) => {
-    Employee.findByIdAndRemove(req.params.id, (err, doc) => {
-        if (!err) {
-            res.redirect('/employees/list'); // corrected redirection path
-        }
-        else {
-            console.log('Error in employee delete :' + err);
-        }
-        
-    });
-
-});
 
 module.exports = router;
